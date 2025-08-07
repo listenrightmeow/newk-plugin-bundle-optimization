@@ -1,6 +1,6 @@
 {
   "name": "@listenrightmeow/newk-plugin-bundle-optimization",
-  "version": "0.0.0-semantic-release",
+  "version": "1.0.0",
   "description": "Nuclear-powered bundle optimization with Zero-State Reconstruction and intelligent recovery",
   "type": "module",
   "main": "dist/index.js",
