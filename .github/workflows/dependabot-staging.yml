@@ -1,0 +1,115 @@
+name: Dependabot Staging Branch Management
+
+on:
+  schedule:
+    # Run weekly to create consolidated PRs
+    - cron: '0 5 * * 1'  # Monday at 5 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  create-staging-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create or reset dependabot staging branch
+        run: |
+          # Check if dependabot/staging branch exists
+          if git show-ref --verify --quiet refs/remotes/origin/dependabot/staging; then
+            echo "Staging branch exists, resetting to main..."
+            git checkout dependabot/staging
+            git reset --hard origin/main
+            git push --force origin dependabot/staging
+          else
+            echo "Creating new staging branch..."
+            git checkout -b dependabot/staging
+            git push -u origin dependabot/staging
+          fi
+
+      - name: Check for pending Dependabot PRs
+        id: check-prs
+        run: |
+          # Get all open Dependabot PRs
+          prs=$(gh pr list --author "dependabot[bot]" --state open --json number,title,branch --jq '.[].number')
+          
+          if [ -z "$prs" ]; then
+            echo "No open Dependabot PRs found"
+            echo "has_prs=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found Dependabot PRs: $prs"
+            echo "has_prs=true" >> $GITHUB_OUTPUT
+            echo "pr_numbers=$prs" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge Dependabot PRs into staging
+        if: steps.check-prs.outputs.has_prs == 'true'
+        run: |
+          git checkout dependabot/staging
+          
+          # Try to merge each PR
+          for pr in ${{ steps.check-prs.outputs.pr_numbers }}; do
+            echo "Processing PR #$pr..."
+            
+            # Get PR branch
+            pr_branch=$(gh pr view $pr --json headRefName --jq '.headRefName')
+            
+            # Try to merge the PR branch
+            if git merge origin/$pr_branch --no-edit; then
+              echo "✅ Successfully merged PR #$pr"
+            else
+              echo "❌ Conflict merging PR #$pr, skipping..."
+              git merge --abort
+            fi
+          done
+          
+          # Push the staging branch
+          git push origin dependabot/staging
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create consolidated PR
+        if: steps.check-prs.outputs.has_prs == 'true'
+        run: |
+          # Check if there are actual changes
+          if [ -n "$(git diff origin/main...origin/dependabot/staging)" ]; then
+            # Create or update PR from staging to main
+            existing_pr=$(gh pr list --base main --head dependabot/staging --state open --json number --jq '.[0].number')
+            
+            if [ -z "$existing_pr" ]; then
+              gh pr create \
+                --base main \
+                --head dependabot/staging \
+                --title "🤖 Consolidated Dependabot Updates" \
+                --body "This PR consolidates all Dependabot dependency updates.
+                
+                ## Included Updates
+                $(gh pr list --author "dependabot[bot]" --state open --json number,title --jq '.[] | "- #\(.number): \(.title)"')
+                
+                ## Testing Checklist
+                - [ ] All tests pass
+                - [ ] Build succeeds
+                - [ ] No breaking changes identified
+                
+                ---
+                *This PR was automatically created by the Dependabot staging workflow.*"
+            else
+              echo "PR already exists: #$existing_pr"
+            fi
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
