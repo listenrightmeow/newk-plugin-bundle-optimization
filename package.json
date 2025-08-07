@@ -9,7 +9,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc && cp src/dependency-analyzer-worker.cjs dist/",
+    "build": "tsc && cp src/*.cjs dist/ 2>/dev/null || true",
     "dev": "tsc --watch",
     "test": "echo \"Tests coming soon\"",
     "lint": "echo \"Linting coming soon\"",
