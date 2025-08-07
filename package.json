@@ -1,0 +1,73 @@
+{
+  "name": "@listenrightmeow/newk-plugin-bundle-optimization",
+  "version": "0.0.0-semantic-release",
+  "description": "Nuclear-powered bundle optimization with Zero-State Reconstruction and intelligent recovery",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc && cp src/dependency-analyzer-worker.cjs dist/",
+    "dev": "tsc --watch",
+    "test": "echo \"Tests coming soon\"",
+    "lint": "echo \"Linting coming soon\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "newk",
+    "optimization",
+    "bundle",
+    "nuclear",
+    "zero-state",
+    "mppo",
+    "performance",
+    "webpack",
+    "vite",
+    "rollup"
+  ],
+  "author": "@listenrightmeow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/listenrightmeow/newk-plugin-bundle-optimization.git"
+  },
+  "bugs": "https://github.com/listenrightmeow/newk-plugin-bundle-optimization/issues",
+  "homepage": "https://github.com/listenrightmeow/newk-plugin-bundle-optimization#readme",
+  "newk": {
+    "type": "optimization",
+    "category": "performance",
+    "priority": 10
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3",
+    "puppeteer": "^22.0.0"
+  },
+  "devDependencies": {
+    "@babel/generator": "^7.28.0",
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "@babel/types": "^7.28.2",
+    "@types/babel__parser": "^7.0.0",
+    "@types/babel__traverse": "^7.20.6",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "rimraf": "^5.0.0",
+    "semantic-release": "^21.1.2",
+    "typescript": "^5.6.3"
+  },
+  "peerDependencies": {
+    "terser": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "terser": {
+      "optional": false
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
