@@ -47,7 +47,7 @@
     "puppeteer": "^22.0.0"
   },
   "devDependencies": {
-    "@babel/generator": "^7.28.0",
+    "@babel/generator": "^7.28.3",
     "@babel/parser": "^7.28.0",
     "@babel/traverse": "^7.28.0",
     "@babel/types": "^7.28.2",
