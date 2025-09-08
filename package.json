@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "fast-glob": "^3.3.3",
-    "puppeteer": "^22.0.0"
+    "puppeteer": "^24.19.0"
   },
   "devDependencies": {
     "@babel/generator": "^7.28.0",
